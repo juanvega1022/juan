@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #faf7f0;
+  --color-card: #ffffff;
+  --color-ink: #1f2430;
+  --color-muted: #6b6f7a;
+  --color-line: #e7e1d3;
+  --color-accent: #2f5bd3;
+  --color-accent-ink: #ffffff;
+  --color-good: #1f7a4d;
+  --color-warn: #a35a00;
+  --color-bad: #b42318;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: #15171c;
+    --color-card: #1d2027;
+    --color-ink: #ece8de;
+    --color-muted: #9a9ea8;
+    --color-line: #2c3039;
+    --color-accent: #7c9dff;
+    --color-accent-ink: #0d1020;
+    --color-good: #5cc68f;
+    --color-warn: #f0a648;
+    --color-bad: #ff7b6e;
+  }
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Ruled-paper look for the sealed idea body. */
+.napkin-lines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 1.7rem,
+    var(--color-line) 1.7rem,
+    var(--color-line) calc(1.7rem + 1px)
+  );
+  line-height: 1.75rem;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-accent text-accent-ink hover:opacity-90;
+}
+@utility btn-ghost {
+  @apply btn border border-line bg-card hover:border-ink/40;
+}
+@utility btn-danger {
+  @apply btn border border-bad/40 text-bad hover:bg-bad/10;
+}
+@utility input {
+  @apply w-full rounded-xl border border-line bg-card px-3 py-2 text-ink outline-none placeholder:text-muted focus:border-accent;
+}
+@utility label {
+  @apply mb-1 block text-sm font-medium;
+}
+@utility card {
+  @apply rounded-2xl border border-line bg-card;
+}
+@utility chip {
+  @apply rounded-full border border-line px-3 py-1 text-sm whitespace-nowrap;
+}
