@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Notice } from "@/components/Notice";
 import { Stars } from "@/components/Stars";
 import { SubmitButton } from "@/components/SubmitButton";
+import { UnlockCelebration } from "@/components/UnlockCelebration";
 import { getUser } from "@/lib/auth";
 import { averageRating, categoryLabel, formatPrice, timeAgo } from "@/lib/format";
 import { withinRefundWindow } from "@/lib/refunds";
@@ -72,6 +73,7 @@ export default async function IdeaPage({ params, searchParams }: PageProps<"/ide
   const ratings = (ratingRows ?? []) as unknown as Rating[];
 
   const unlocked = body !== null;
+  const justUnlocked = query.checkout === "success" && unlocked && !isAuthor;
   const paid = purchase?.status === "paid";
   const canRefund =
     paid && purchase?.paid_at && withinRefundWindow(purchase.paid_at) && myRating?.stars === 1 && !refundStatus;
@@ -86,7 +88,7 @@ export default async function IdeaPage({ params, searchParams }: PageProps<"/ide
           {idea.status !== "live" && <span className="chip uppercase">{idea.status}</span>}
           <span>{timeAgo(idea.published_at ?? idea.created_at)}</span>
         </div>
-        <h1 className="font-display text-4xl leading-tight font-semibold">{idea.title}</h1>
+        <h1 className="font-display text-4xl leading-tight font-semibold sm:text-5xl">{idea.title}</h1>
         <p className="text-xl leading-relaxed">{idea.teaser}</p>
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <Stars value={averageRating(idea.rating_sum, idea.rating_count)} count={idea.rating_count} />
@@ -100,8 +102,11 @@ export default async function IdeaPage({ params, searchParams }: PageProps<"/ide
         </div>
 
         {query.checkout === "success" && !unlocked && purchase?.status === "pending" && <PaymentPending />}
-        {query.checkout === "success" && unlocked && !isAuthor && (
-          <Notice tone="good">Unlocked. Enjoy the idea!</Notice>
+        {justUnlocked && (
+          <>
+            <UnlockCelebration />
+            <p className="-rotate-1 font-hand text-3xl text-accent">Unfolded! It&apos;s all yours.</p>
+          </>
         )}
         {query.checkout === "cancelled" && <Notice>Checkout cancelled — you were not charged.</Notice>}
         {query.error === "unavailable" && (
@@ -110,22 +115,29 @@ export default async function IdeaPage({ params, searchParams }: PageProps<"/ide
         {purchase?.status === "refunded" && <Notice>You were refunded for this idea.</Notice>}
 
         {unlocked ? (
-          <section className="card napkin-lines p-6 text-[17px] whitespace-pre-wrap">{body}</section>
+          <section
+            className={`card napkin-card napkin-lines p-6 text-[17px] whitespace-pre-wrap sm:p-8 ${
+              justUnlocked ? "ink-in" : ""
+            }`}
+          >
+            {body}
+          </section>
         ) : (
-          <section className="card relative overflow-hidden p-6">
-            <div aria-hidden className="napkin-lines space-y-2 blur-sm select-none">
+          <a href="#unlock" className="sealed card napkin-card tilt-l relative block overflow-hidden p-6 sm:p-8">
+            <div aria-hidden className="napkin-lines space-y-3 blur-[5px] select-none">
               <div className="h-4 w-11/12 rounded bg-line" />
               <div className="h-4 w-10/12 rounded bg-line" />
               <div className="h-4 w-9/12 rounded bg-line" />
               <div className="h-4 w-11/12 rounded bg-line" />
               <div className="h-4 w-7/12 rounded bg-line" />
             </div>
-            <div className="absolute inset-0 grid place-items-center">
-              <a href="#unlock" className="rounded-full bg-card px-4 py-2 text-sm font-medium shadow">
-                🔒 Sealed — unlock to read the full idea
-              </a>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+              <span className="seal grid h-24 w-24 -rotate-12 place-items-center rounded-full border-4 border-double border-bad/70 bg-card/90 font-hand text-2xl leading-none font-bold text-bad/80 shadow-sm">
+                SEALED
+              </span>
+              <span className="font-hand text-2xl text-muted">unlock to unfold it →</span>
             </div>
-          </section>
+          </a>
         )}
 
         {isAuthor && (
@@ -186,7 +198,9 @@ export default async function IdeaPage({ params, searchParams }: PageProps<"/ide
 
       <aside className="lg:sticky lg:top-20 lg:self-start">
         <div id="unlock" className="card scroll-mt-20 space-y-4 p-5">
-          <div className="font-display text-4xl font-semibold">{formatPrice(idea.price_cents)}</div>
+          <div className="inline-block -rotate-2 rounded-md bg-highlight px-3 font-hand text-5xl font-bold">
+            {formatPrice(idea.price_cents)}
+          </div>
           {isAuthor ? (
             <p className="text-sm text-muted">This is your idea. Buyers see the teaser until they pay.</p>
           ) : unlocked ? (
