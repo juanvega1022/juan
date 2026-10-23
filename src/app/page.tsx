@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FloatingNapkins } from "@/components/FloatingNapkins";
 import { IdeaCard } from "@/components/IdeaCard";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -50,13 +51,30 @@ export default async function FeedPage({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="space-y-6">
-      <section className="py-4">
-        <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-          Ideas, sketched on a napkin.
+      <section className="relative py-6 sm:py-10">
+        <span aria-hidden className="coffee-ring -top-6 right-6 hidden h-40 w-40 sm:block" />
+        <span aria-hidden className="coffee-ring top-20 right-40 hidden h-16 w-16 sm:block" />
+        <FloatingNapkins />
+        <h1 className="relative max-w-3xl font-display text-5xl leading-[1.05] font-semibold tracking-tight sm:text-7xl">
+          Ideas, sketched on a{" "}
+          <span className="relative inline-block">
+            napkin.
+            <svg
+              aria-hidden
+              viewBox="0 0 300 24"
+              preserveAspectRatio="none"
+              className="scribble absolute -bottom-2 left-0 h-4 w-full text-accent"
+            >
+              <path d="M4 16 C 60 6, 120 4, 170 10 S 260 20, 296 8" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+            </svg>
+          </span>
         </h1>
-        <p className="mt-3 max-w-2xl text-lg text-muted">
-          Every idea has a free one-line teaser. If it grabs you, unlock the full write-up. Creators
-          keep 85%.
+        <p className="relative mt-5 max-w-2xl text-lg text-muted sm:text-xl">
+          Every idea has a <span className="highlight text-ink">free one-line teaser</span>. If it grabs
+          you, unlock the full write-up. Creators keep 85%.
+        </p>
+        <p className="relative mt-3 -rotate-2 font-hand text-2xl text-accent">
+          ↓ the best ones never leave the napkin. until now.
         </p>
       </section>
 
@@ -102,8 +120,8 @@ export default async function FeedPage({ searchParams }: PageProps<"/">) {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {ideas.map((idea) => (
-            <IdeaCard key={idea.id} idea={idea} />
+          {ideas.map((idea, i) => (
+            <IdeaCard key={idea.id} idea={idea} index={i} />
           ))}
         </div>
       )}
